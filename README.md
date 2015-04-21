@@ -42,7 +42,7 @@ MATSQLiteConnection *connection = [[MATSQLiteConnection alloc] init];
 
 [connection executeSQL:@"CREATE TABLE channels(id INTEGER PRIMARY KEY, remoteID TEXT)"
                  error:nil];
-[connection executeSQL:@"INSERT INTO channels VALUES (0, 'bbc');"
+[connection executeSQL:@"INSERT INTO channels VALUES (0, 'bbc')"
                  error:nil];
 
 NSArray *row = [connection querySingleRowWithSQL:@"SELECT * FROM channels"
