@@ -28,7 +28,11 @@ typedef NS_ENUM(NSInteger, MATSQLiteColumnType) {
 
 - (BOOL)bindInt:(int)intValue toIndex:(int)idx error:(NSError *__autoreleasing *)error;
 
+- (BOOL)bindInt64:(sqlite3_int64)intValue toIndex:(int)idx error:(NSError *__autoreleasing *)error;
+
 - (BOOL)bindDouble:(double)doubleValue toIndex:(int)idx error:(NSError *__autoreleasing *)error;
+
+- (BOOL)bindDateAsDouble:(NSDate *)date toIndex:(int)idx error:(NSError *__autoreleasing *)error;
 
 - (BOOL)bindBLOB:(NSData *)data toIndex:(int)idx error:(NSError *__autoreleasing *)error;
 
@@ -47,6 +51,8 @@ typedef NS_ENUM(NSInteger, MATSQLiteColumnType) {
 - (MATSQLiteColumnType)columnTypeAtIndex:(int)idx;
 
 - (NSString *)textAtColumnIndex:(int)idx;
+
+- (NSDate *)dateFromDoubleAtColumnIndex:(int)idx;
 
 - (int)intAtColumnIndex:(int)idx;
 

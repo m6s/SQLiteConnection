@@ -6,28 +6,28 @@ SQLiteConnection is a lean Objective-C wrapper around libsqlite.
 
 Opening a connection:
 
-```
+```objective-c
 MATSQLiteConnection *connection = [[MATSQLiteConnection alloc] init];
 [connection openInMemoryDatabaseWithError:nil];
 ```
 
 Creating and filling a table:
 
-```
+```objective-c
 MATSQLiteStatement *statement =
-    [connection prepareStatementWithSQL:@"CREATE TABLE channels(id INTEGER PRIMARY KEY, remoteID TEXT);"
+    [connection prepareStatementWithSQL:@"CREATE TABLE channels(id INTEGER PRIMARY KEY, remoteID TEXT)"
                                   error:nil];
 [statement stepWithError:nil];
 
-statement = [connection prepareStatementWithSQL:@"INSERT INTO channels VALUES (0, 'bbc');"
+statement = [connection prepareStatementWithSQL:@"INSERT INTO channels VALUES (0, 'bbc')"
                                           error:nil];
 [statement stepWithError:nil];
 ```
 
 Querying:
 
-```
-statement = [connection prepareStatementWithSQL:@"SELECT * FROM channels;"
+```objective-c
+statement = [connection prepareStatementWithSQL:@"SELECT * FROM channels"
                                           error:nil];
 NSLog([statement columnCount]); // output: "2"
 [statement stepWithError:nil];
@@ -36,19 +36,19 @@ NSLog([statement textAtColumnIndex:1]); // output: "bbc"
 
 Convenience methods:
 
-```
+```objective-c
 MATSQLiteConnection *connection = [[MATSQLiteConnection alloc] init];
 [connection openInMemoryDatabaseWithError:nil];
 
-[connection executeSQL:@"CREATE TABLE channels(id INTEGER PRIMARY KEY, remoteID TEXT);"
+[connection executeSQL:@"CREATE TABLE channels(id INTEGER PRIMARY KEY, remoteID TEXT)"
                  error:nil];
 [connection executeSQL:@"INSERT INTO channels VALUES (0, 'bbc');"
                  error:nil];
 
-NSArray *row = [connection querySingleRowWithSQL:@"SELECT * FROM channels;"
+NSArray *row = [connection querySingleRowWithSQL:@"SELECT * FROM channels"
                                            error:nil];
 NSLog(row.count);
-NSLogrow[1]);
+NSLog(row[1]);
 ```
 
 ## License

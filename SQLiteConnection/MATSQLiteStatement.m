@@ -70,8 +70,30 @@ static void check_column_index(int idx, BOOL evaluated, BOOL afterLastRow, int c
     return YES;
 }
 
+- (BOOL)bindInt64:(sqlite3_int64)intValue toIndex:(int)idx error:(NSError *__autoreleasing *)error {
+    int sqliteResult = sqlite3_bind_int64(_stmt, idx + 1, intValue);
+    if (sqliteResult != SQLITE_OK) {
+        if (error) {
+            *error = [MATSQLiteConnection lastErrorForWrappedConnection:_conn];
+        }
+        return NO;
+    }
+    return YES;
+}
+
 - (BOOL)bindDouble:(double)doubleValue toIndex:(int)idx error:(NSError *__autoreleasing *)error {
     int sqliteResult = sqlite3_bind_double(_stmt, idx + 1, doubleValue);
+    if (sqliteResult != SQLITE_OK) {
+        if (error) {
+            *error = [MATSQLiteConnection lastErrorForWrappedConnection:_conn];
+        }
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)bindDateAsDouble:(NSDate *)date toIndex:(int)idx error:(NSError *__autoreleasing *)error {
+    int sqliteResult = sqlite3_bind_double(_stmt, idx + 1, date.timeIntervalSince1970);
     if (sqliteResult != SQLITE_OK) {
         if (error) {
             *error = [MATSQLiteConnection lastErrorForWrappedConnection:_conn];
@@ -162,6 +184,21 @@ static void check_column_index(int idx, BOOL evaluated, BOOL afterLastRow, int c
     return [NSString stringWithUTF8String:utf8Text];
 }
 
+- (NSDate *)dateFromDoubleAtColumnIndex:(int)idx {
+    check_column_index(idx, _evaluated, _afterLastRow, _columnCount);
+    double secs = sqlite3_column_double(_stmt, idx);
+    return [NSDate dateWithTimeIntervalSince1970:secs];
+}
+
+//- (NSDate *)dateFromTextAtColumnIndex:(int)idx format:(MATSQLiteDateFormat)dateFormat {
+//    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+//    dateFormatter.dateFormat = @"";
+//    check_column_index(idx, _evaluated, _afterLastRow, _columnCount);
+//    char *utf8Text = (char *) sqlite3_column_text(_stmt, idx);
+//    NSString *dateString = [NSString stringWithUTF8String:utf8Text];
+//    return [dateFormatter dateFromString:dateString];
+//}
+
 - (int)intAtColumnIndex:(int)idx {
     check_column_index(idx, _evaluated, _afterLastRow, _columnCount);
     return sqlite3_column_int(_stmt, idx);
@@ -195,16 +232,12 @@ static void check_column_index(int idx, BOOL evaluated, BOOL afterLastRow, int c
             return [self textAtColumnIndex:i];
         case MATSQLiteColumnTypeBlob:
             return [self blobAtColumnIndex:i];
-        case MATSQLiteColumnTypeDouble: {
-            double aDouble = [self doubleAtColumnIndex:i];
-            return [NSValue value:&aDouble withObjCType:@encode(double *)];
-        };
+        case MATSQLiteColumnTypeDouble:
+            return [NSNumber numberWithDouble:[self doubleAtColumnIndex:i]];
         case MATSQLiteColumnTypeNull:
             return nil;
-        case MATSQLiteColumnTypeInteger: {
-            int anInt = [self intAtColumnIndex:i];
-            return [NSValue value:&anInt withObjCType:@encode(int *)];
-        };
+        case MATSQLiteColumnTypeInteger:
+            return [NSNumber numberWithLongLong:[self int64AtColumnIndex:i]];
         default:
             abort();
     }
